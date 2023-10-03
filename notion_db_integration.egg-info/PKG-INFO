@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: notion-db-integration
-Version: 0.1.2
+Version: 0.1.3
 Summary: A wrapper around Notion API to perform CRUD operations on your notion database
 Home-page: UNKNOWN
 Author: Arjun
@@ -13,5 +13,11 @@ Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 
-to view tutorial and codebase click [here](https://github.com/arjunprakash027/notion_db_integration)
+to view tutorial and codebase click [here](https://github.com/arjunprakash027/notion_db_integration) 
+        
+ Version: 0.1.3 
+        
+ Changes: 
+        
+ Minor error fixes regarding number values in database
 

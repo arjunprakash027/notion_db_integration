@@ -10,28 +10,7 @@ class DBIntegration:
         'Notion-Version': '2021-05-13',  # Replace with the latest API version
                 }   
 
-    def formatting(self,response,dataframe=False):
-        from collections import defaultdict
-        queried_database = defaultdict(list)
-        try:
-            data = response.json()
-            entries = data.get('results', [])
-            for entry in entries:
-                for key,value in entry['properties'].items():
-                    if key == "ID":
-                        type = value['type']
-                        queried_database[key].append(value[type]['number'])
-                    else:
-                        type = value['type']
-                        queried_database[key].append(value[type][0]['plain_text'])
-            if dataframe:
-                import pandas
-                return pandas.DataFrame(queried_database).reset_index(drop=True).set_index("ID")
-            else:
-                return dict(queried_database)
     
-        except:
-            raise Exception({"error":response.text})
 
     def get_databases(self) -> dict:
         """
@@ -83,6 +62,48 @@ class DBIntegration:
         except:
             raise Exception (f"db {db_name} not found")
 
+    def formatting(self,response,dataframe=False):
+        from collections import defaultdict
+        queried_database = defaultdict(list)
+        all_columns = set(self.columns_attributes.keys())
+        try:
+            data = response.json()
+            entries = data.get('results', [])
+
+            for entry in entries:
+                present_columns = set(entry['properties'].keys())
+                if len(present_columns)!=len(all_columns):
+                    difference = all_columns.difference(present_columns)
+                    for x in difference:
+                        queried_database[x].append(None)
+
+                for key,value in entry['properties'].items():
+                    if key == "ID":
+                        types = value['type']
+                        if value['type']:
+                            queried_database[key].append(value[types]['number'])
+                        else:
+                            queried_database[key].append(None)
+                    else:
+                        types = value['type']
+                        if types == 'number':
+                            if value[types]:
+                                queried_database[key].append(value[types])
+                            else:
+                                queried_database[key].append(None)
+                        else:
+                            if value[types]:
+                                 queried_database[key].append(value[types][0]['plain_text'])
+                            else:
+                                 queried_database[key].append(None)
+            if dataframe:
+                import pandas
+                return pandas.DataFrame(queried_database).reset_index(drop=True).set_index("ID")
+            else:
+                return dict(queried_database)
+    
+        except:
+            raise Exception({"error":response.text})
 
     def get_all_entries(self,dataframe=False):
         """
@@ -148,7 +169,10 @@ class DBIntegration:
 
         final_value = {}
         for key,content in value.items():
-            final_value[key] = {self.columns_attributes[key]:[{'text':{'content':content}}]}
+            if self.columns_attributes[key] == 'number':
+                final_value[key] = {self.columns_attributes[key]:content}
+            else:
+                final_value[key] = {self.columns_attributes[key]:[{'text':{'content':content}}]}
         
         new_entry_data = {
             'parent': {'database_id': self.selected_database},
@@ -185,7 +209,10 @@ class DBIntegration:
         for entries in range(total_len):
             final_value = {}
             for key,content in values.items():
-                final_value[key] = {self.columns_attributes[key]:[{'text':{'content':content[entries]}}]}
+                if self.columns_attributes[key] == 'number':
+                    final_value[key] = {self.columns_attributes[key]:content[entries]}
+                else:
+                    final_value[key] = {self.columns_attributes[key]:[{'text':{'content':content[entries]}}]}
             new_entry_data = {
             'parent': {'database_id': self.selected_database},
             'properties': final_value
@@ -265,17 +292,27 @@ class DBIntegration:
 
                 for column_update,value_update in update_value.items():
                     
-                    properties_update[column_update] = {
-                                self.columns_attributes[column_update]: [
-                                    {   
-                                        "type":"text",
-                                        "text":{"content": value_update}
+                    if self.columns_attributes[column_update] == 'number':
+
+                        properties_update[column_update] = {
+                                        "type":"number",
+                                        "number":value_update
                                     }
-                                ]
-                    }
+
+                    else:
+                        properties_update[column_update] = {
+                                    self.columns_attributes[column_update]: [
+                                        {   
+                                            "type":"text",
+                                            "text":{"content": value_update}
+                                        }
+                                    ]
+                        }
 
                 update_data = {
                     "properties": properties_update}
+                
+                print(update_data)
 
                 update_response = requests.patch(update_url, headers=self.headers, json=update_data)
 
@@ -338,13 +375,14 @@ class DBIntegration:
         else:
             raise Exception ("Multiple entires found, cound not update")
 
-if __name__ == "__main__":
-    ni = DBIntegration("")
-    ni.get_databases()
-    ni.set_database("Database1")
-    print(ni.get_all_entries(dataframe=True))
-    # print(ni.query(query={"firstname":"New Name"},dataframe=False))
-    #print(ni.add_value(value={"country":"india","job":"engineer","firstname":"shourav"}))
-    #ni.add_values(values={"country":["india","usa"],"job":["engineer","doctor"],"firstname":["shourav","shubham"]})
-    #ni.update_value(filter_query={"country":"india","job":"carpenter"},update_value={"job":"stockbroker","firstname":"amoly"})
+# if __name__ == "__main__":
+    # ni = DBIntegration("")
+    # ni.get_databases()
+    # ni.set_database("Employment_db")
+    #print(ni.get_all_entries())
+    #print(ni.query(query={"Name":"Rajesh"},dataframe=True))
+    #print(ni.add_value(value={"Name":"Kumarsamy","salary":200000,"company":"Adobe"}))
+    #print(ni.add_values(values={"Name":["rocky","ravy"],"salary":[5000,15000],"company":["infosys","tcs"]}))
+    #ni.update_value(filter_query={"Name":"Rajesh","company":"Microsoft"},update_value={"salary":300000})
+    #ni.update_value(filter_query={"Name":"Rajesh","company":"Microsoft"},update_value={"salary":900000,"company":"Adobe"})
     # ni.delete_one(id=4)

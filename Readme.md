@@ -1,5 +1,7 @@
 # DBIntegration Python Module
 
+Read my [medium article](https://medium.com/@arjunprakash027/how-to-use-notion-database-to-power-your-software-and-storage-needs-611aad03e438) to know about how to create a notion database.
+
 The `DBIntegration` module allows you to interact with Notion databases using Python. With this module, you can query, add, update, and delete entries in your Notion databases with ease.
 
 ## Installation
