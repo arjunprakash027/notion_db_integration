@@ -1,6 +1,6 @@
 from notion_db_integration import DBIntegration
 
-ni = DBIntegration("secret_U2x5p8w6FbKg7iTAdeGhG3Yov1s3dSItkvkWQ32hPKC")
+ni = DBIntegration("")
 print(ni.get_databases())
 print(ni.set_database("Employment_db"))
 print(ni.get_all_entries(dataframe=False))
