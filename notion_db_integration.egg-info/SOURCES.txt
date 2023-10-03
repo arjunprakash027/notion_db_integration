@@ -1,0 +1,6 @@
+setup.py
+notion_db_integration.egg-info/PKG-INFO
+notion_db_integration.egg-info/SOURCES.txt
+notion_db_integration.egg-info/dependency_links.txt
+notion_db_integration.egg-info/requires.txt
+notion_db_integration.egg-info/top_level.txt

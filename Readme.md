@@ -4,10 +4,10 @@ The `DBIntegration` module allows you to interact with Notion databases using Py
 
 ## Installation
 
-To use the `DBIntegration` module, you'll need to install the required `requests` library. You can install it using pip:
+To use the `DBIntegration` module, you'll need to install the required `notion-db-integration` library. You can install it using pip:
 
 ```bash
-pip install requests
+pip install notion-db-integration==0.1.0
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ pip install requests
 First, import the module and create an instance of the `DBIntegration` class:
 
 ```python
-from db_integration import DBIntegration
+from notion_db_integration import DBIntegration
 
 # Initialize with your Notion integration token
 ni = DBIntegration("your_integration_token")
